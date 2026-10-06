@@ -52,12 +52,12 @@ export function SwipeDeck({
     }, 250);
   }, [currentItem, animatingOut, currentIndex, onSwipe]);
 
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     if (swipeHistory.length === 0 || currentIndex === 0) return;
     const lastIdx = swipeHistory[swipeHistory.length - 1];
     setSwipeHistory((prev) => prev.slice(0, -1));
     setCurrentIndex(lastIdx);
-  };
+  }, [swipeHistory, currentIndex]);
 
   // Drag / Pointer Events
   const onPointerDown = (e: React.PointerEvent) => {
@@ -105,7 +105,7 @@ export function SwipeDeck({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentItem, handleSwipeAction, onOpenDossier]);
+  }, [currentItem, handleSwipeAction, handleUndo, onOpenDossier]);
 
   // Compute visual transform styles
   const getCardStyle = () => {

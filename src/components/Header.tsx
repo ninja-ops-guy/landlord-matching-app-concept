@@ -30,9 +30,9 @@ export function Header({
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-rose-100 shadow-xs transition-colors">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 py-3 sm:h-16 sm:py-0">
           {/* Logo & Tagline */}
-          <div className="flex items-center gap-3">
+          <div className="order-1 flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-500 text-white shadow-md shadow-rose-200">
               <div className="relative">
                 <Flame className="w-5 h-5 fill-white" />
@@ -57,7 +57,7 @@ export function Header({
           </div>
 
           {/* Mode Switcher Toggle */}
-          <div className="flex items-center bg-gray-100 p-1 rounded-full border border-gray-200/80 shadow-inner">
+          <div className="order-3 sm:order-2 w-full sm:w-auto justify-center flex items-center bg-gray-100 p-1 rounded-full border border-gray-200/80 shadow-inner">
             <button
               onClick={() => setMode("landlord")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
@@ -83,7 +83,7 @@ export function Header({
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2">
+          <div className="order-2 sm:order-3 flex items-center gap-2">
             <button
               onClick={onOpenFilter}
               className="p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors border border-gray-200 text-xs font-medium flex items-center gap-1.5"

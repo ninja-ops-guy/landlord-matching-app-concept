@@ -1,4 +1,6 @@
 "use client";
+import { localFetch } from "@/lib/local-fetch";
+
 
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -66,9 +68,11 @@ export function MatchesAndChat({
   useEffect(() => {
     if (!activeMatch) return;
     let isMounted = true;
+    // A changed conversation starts a new asynchronous browser-storage request.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoadingMessages(true);
 
-    fetch(`/api/messages?matchId=${activeMatch.id}`)
+    localFetch(`/api/messages?matchId=${activeMatch.id}`)
       .then((res) => res.json())
       .then((data) => {
         if (isMounted) {
@@ -84,7 +88,7 @@ export function MatchesAndChat({
     return () => {
       isMounted = false;
     };
-  }, [activeMatch?.id]);
+  }, [activeMatch]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -100,7 +104,7 @@ export function MatchesAndChat({
     setShowIcebreakers(false);
 
     try {
-      const res = await fetch("/api/messages", {
+      const res = await localFetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -131,7 +135,7 @@ export function MatchesAndChat({
     if (!activeMatch) return;
     setIsSending(true);
     try {
-      const res = await fetch("/api/messages", {
+      const res = await localFetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -167,7 +171,7 @@ export function MatchesAndChat({
     if (!activeMatch) return;
     setIsSending(true);
     try {
-      const res = await fetch("/api/messages", {
+      const res = await localFetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -597,6 +601,7 @@ export function MatchesAndChat({
 
               <button
                 type="submit"
+                aria-label="Send message"
                 disabled={!inputText.trim() || isSending}
                 className={`p-2.5 rounded-xl text-white font-bold transition-all ${
                   !inputText.trim() || isSending

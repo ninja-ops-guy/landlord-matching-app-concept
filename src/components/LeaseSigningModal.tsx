@@ -1,4 +1,6 @@
 "use client";
+import { localFetch } from "@/lib/local-fetch";
+
 
 import React, { useRef, useState } from "react";
 import { X, CheckCircle2, FileSignature, ShieldCheck, Download, Sparkles, Building, Calendar, DollarSign } from "lucide-react";
@@ -72,7 +74,7 @@ export function LeaseSigningModal({ isOpen, onClose, match, onLeaseSigned }: Lea
     if (!agreedTerms) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/matches/${match.id}`, {
+      const res = await localFetch(`/api/matches/${match.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -105,7 +107,7 @@ export function LeaseSigningModal({ isOpen, onClose, match, onLeaseSigned }: Lea
             </div>
             <div>
               <h3 className="font-extrabold text-base tracking-tight">Standard Residential Lease Agreement</h3>
-              <p className="text-xs text-slate-400">Digital Paperless Signature & Escrow</p>
+              <p className="text-xs text-slate-400">Local demo — no legal document is executed</p>
             </div>
           </div>
           <button
@@ -118,16 +120,16 @@ export function LeaseSigningModal({ isOpen, onClose, match, onLeaseSigned }: Lea
 
         {/* Content */}
         <div className="overflow-y-auto p-6 space-y-6 text-gray-800 text-xs sm:text-sm">
-          {signedSuccess ? (
+          {signedSuccess || match.status === "lease_signed" ? (
             <div className="py-12 text-center space-y-4">
               <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-lg animate-bounce">
                 <CheckCircle2 className="w-12 h-12" />
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
-                LEASE OFFICIALLY SIGNED & SEALED! 🎉
+                DEMO SIGNATURE SAVED! 🎉
               </h2>
               <p className="text-sm text-gray-600 max-w-md mx-auto">
-                Congratulations! Both Landlord {landlord?.name || "Arthur"} and Tenant {tenant?.name || "Elena"} have executed this residential lease agreement. A copy has been saved to your records.
+                A simulated signature for {tenant?.name || "Elena"} has been saved in this browser. This preview does not execute a lease, transfer funds, or notify a landlord.
               </p>
               <div className="pt-4 flex justify-center gap-3">
                 <button
@@ -144,10 +146,10 @@ export function LeaseSigningModal({ isOpen, onClose, match, onLeaseSigned }: Lea
               <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-900 space-y-1">
                 <div className="font-bold flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-amber-700" />
-                  <span>Legally Binding Electronic Lease via Landlordr E-Sign</span>
+                  <span>Sample Lease Preview</span>
                 </div>
                 <p>
-                  This document constitutes a binding residential lease commitment once signed by both the Landlord and Lessee.
+                  This fictional agreement demonstrates the signing flow. Saving a signature only updates this browser demo.
                 </p>
               </div>
 
@@ -272,7 +274,7 @@ export function LeaseSigningModal({ isOpen, onClose, match, onLeaseSigned }: Lea
                     className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
                   />
                   <span className="text-xs text-gray-600 leading-snug">
-                    I acknowledge that I have reviewed the lease provisions and agree to countersign electronically under the Uniform Electronic Transactions Act.
+                    I understand this is a local preview and want to save a sample signature. No real lease is signed.
                   </span>
                 </label>
               </div>
@@ -290,7 +292,7 @@ export function LeaseSigningModal({ isOpen, onClose, match, onLeaseSigned }: Lea
                   }`}
                 >
                   <FileSignature className="w-5 h-5" />
-                  <span>{isSubmitting ? "Executing Digital Signatures..." : "Execute & Countersign Lease Agreement"}</span>
+                  <span>{isSubmitting ? "Saving sample signature..." : "Save Demo Signature"}</span>
                 </button>
               </div>
             </>

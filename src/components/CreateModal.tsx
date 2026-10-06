@@ -1,4 +1,6 @@
 "use client";
+import { localFetch } from "@/lib/local-fetch";
+
 
 import React, { useState } from "react";
 import { X, Building2, User, Plus, CheckCircle2, Sparkles, Image as ImageIcon } from "lucide-react";
@@ -21,6 +23,7 @@ export function CreateModal({
 }: CreateModalProps) {
   const [createType, setCreateType] = useState<AppMode>(initialMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error,setError]=useState("");
 
   // Listing Form State
   const [listingForm, setListingForm] = useState({
@@ -59,6 +62,7 @@ export function CreateModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError("");
 
     try {
       if (createType === "landlord") {
@@ -79,12 +83,13 @@ export function CreateModal({
           availableDate: "Next Month",
         };
 
-        const res = await fetch("/api/listings", {
+        const res = await localFetch("/api/listings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
 
+        if(!res.ok){const data=await res.json();throw new Error(data.error??"Could not save entry")}
         if (res.ok) {
           const newListing = await res.json();
           onListingCreated(newListing);
@@ -112,12 +117,13 @@ export function CreateModal({
           redFlags: ["Will organize spices alphabetically"],
         };
 
-        const res = await fetch("/api/tenants", {
+        const res = await localFetch("/api/tenants", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
 
+        if(!res.ok){const data=await res.json();throw new Error(data.error??"Could not save entry")}
         if (res.ok) {
           const newTenant = await res.json();
           onTenantCreated(newTenant);
@@ -125,7 +131,7 @@ export function CreateModal({
         }
       }
     } catch (err) {
-      console.error("Error creating entry:", err);
+      setError(err instanceof Error?err.message:"Could not save entry");
     } finally {
       setIsSubmitting(false);
     }
@@ -150,6 +156,7 @@ export function CreateModal({
           </button>
         </div>
 
+        {error && <p role="alert" className="p-4 text-red-600">{error}</p>}
         {/* Type Switcher */}
         <div className="px-6 pt-4">
           <div className="flex bg-gray-100 p-1 rounded-2xl">
@@ -182,8 +189,8 @@ export function CreateModal({
             /* LISTING FORM */
             <>
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Listing Title</label>
-                <input
+                <label htmlFor="entry-1" className="block font-bold text-gray-700 mb-1">Listing Title</label>
+                <input id="entry-1"
                   type="text"
                   required
                   value={listingForm.title}
@@ -194,8 +201,8 @@ export function CreateModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Neighborhood</label>
-                  <input
+                  <label htmlFor="entry-2" className="block font-bold text-gray-700 mb-1">Neighborhood</label>
+                  <input id="entry-2"
                     type="text"
                     required
                     value={listingForm.neighborhood}
@@ -204,8 +211,8 @@ export function CreateModal({
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">City</label>
-                  <input
+                  <label htmlFor="entry-3" className="block font-bold text-gray-700 mb-1">City</label>
+                  <input id="entry-3"
                     type="text"
                     required
                     value={listingForm.city}
@@ -217,8 +224,8 @@ export function CreateModal({
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Rent ($/mo)</label>
-                  <input
+                  <label htmlFor="entry-4" className="block font-bold text-gray-700 mb-1">Rent ($/mo)</label>
+                  <input id="entry-4"
                     type="number"
                     required
                     value={listingForm.rent}
@@ -227,8 +234,8 @@ export function CreateModal({
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Bedrooms</label>
-                  <input
+                  <label htmlFor="entry-5" className="block font-bold text-gray-700 mb-1">Bedrooms</label>
+                  <input id="entry-5"
                     type="number"
                     min="0"
                     max="5"
@@ -238,8 +245,8 @@ export function CreateModal({
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Sqft</label>
-                  <input
+                  <label htmlFor="entry-6" className="block font-bold text-gray-700 mb-1">Sqft</label>
+                  <input id="entry-6"
                     type="number"
                     value={listingForm.sqft}
                     onChange={(e) => setListingForm({ ...listingForm, sqft: Number(e.target.value) })}
@@ -249,8 +256,8 @@ export function CreateModal({
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Photo Image URL</label>
-                <input
+                <label htmlFor="entry-7" className="block font-bold text-gray-700 mb-1">Photo Image URL</label>
+                <input id="entry-7"
                   type="url"
                   value={listingForm.imageUrl}
                   onChange={(e) => setListingForm({ ...listingForm, imageUrl: e.target.value })}
@@ -259,8 +266,8 @@ export function CreateModal({
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Description</label>
-                <textarea
+                <label htmlFor="entry-8" className="block font-bold text-gray-700 mb-1">Description</label>
+                <textarea id="entry-8"
                   rows={2}
                   value={listingForm.description}
                   onChange={(e) => setListingForm({ ...listingForm, description: e.target.value })}
@@ -269,8 +276,8 @@ export function CreateModal({
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Amenities (comma separated)</label>
-                <input
+                <label htmlFor="entry-9" className="block font-bold text-gray-700 mb-1">Amenities (comma separated)</label>
+                <input id="entry-9"
                   type="text"
                   value={listingForm.amenities}
                   onChange={(e) => setListingForm({ ...listingForm, amenities: e.target.value })}
@@ -283,8 +290,8 @@ export function CreateModal({
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Full Name</label>
-                  <input
+                  <label htmlFor="entry-10" className="block font-bold text-gray-700 mb-1">Full Name</label>
+                  <input id="entry-10"
                     type="text"
                     required
                     value={tenantForm.name}
@@ -293,8 +300,8 @@ export function CreateModal({
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Age</label>
-                  <input
+                  <label htmlFor="entry-11" className="block font-bold text-gray-700 mb-1">Age</label>
+                  <input id="entry-11"
                     type="number"
                     value={tenantForm.age}
                     onChange={(e) => setTenantForm({ ...tenantForm, age: Number(e.target.value) })}
@@ -305,8 +312,8 @@ export function CreateModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Occupation</label>
-                  <input
+                  <label htmlFor="entry-12" className="block font-bold text-gray-700 mb-1">Occupation</label>
+                  <input id="entry-12"
                     type="text"
                     required
                     value={tenantForm.job}
@@ -315,8 +322,8 @@ export function CreateModal({
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Employer / Company</label>
-                  <input
+                  <label htmlFor="entry-13" className="block font-bold text-gray-700 mb-1">Employer / Company</label>
+                  <input id="entry-13"
                     type="text"
                     required
                     value={tenantForm.company}
@@ -341,8 +348,8 @@ export function CreateModal({
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-gray-700 mb-1">Monthly Income ($)</label>
-                  <input
+                  <label htmlFor="entry-14" className="block font-bold text-gray-700 mb-1">Monthly Income ($)</label>
+                  <input id="entry-14"
                     type="number"
                     value={tenantForm.monthlyIncome}
                     onChange={(e) => setTenantForm({ ...tenantForm, monthlyIncome: Number(e.target.value) })}
@@ -352,8 +359,8 @@ export function CreateModal({
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Photo Avatar URL</label>
-                <input
+                <label htmlFor="entry-15" className="block font-bold text-gray-700 mb-1">Photo Avatar URL</label>
+                <input id="entry-15"
                   type="url"
                   value={tenantForm.avatar}
                   onChange={(e) => setTenantForm({ ...tenantForm, avatar: e.target.value })}
@@ -362,8 +369,8 @@ export function CreateModal({
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Pet Information</label>
-                <input
+                <label htmlFor="entry-16" className="block font-bold text-gray-700 mb-1">Pet Information</label>
+                <input id="entry-16"
                   type="text"
                   value={tenantForm.petInfo}
                   onChange={(e) => setTenantForm({ ...tenantForm, petInfo: e.target.value })}
@@ -373,8 +380,8 @@ export function CreateModal({
               </div>
 
               <div>
-                <label className="block font-bold text-gray-700 mb-1">Personal Bio & Rental Habits</label>
-                <textarea
+                <label htmlFor="entry-17" className="block font-bold text-gray-700 mb-1">Personal Bio & Rental Habits</label>
+                <textarea id="entry-17"
                   rows={2}
                   value={tenantForm.bio}
                   onChange={(e) => setTenantForm({ ...tenantForm, bio: e.target.value })}

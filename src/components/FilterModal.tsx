@@ -28,9 +28,6 @@ export function FilterModal({
 }: FilterModalProps) {
   const [localFilters, setLocalFilters] = React.useState<FilterState>(filters);
 
-  React.useEffect(() => {
-    setLocalFilters(filters);
-  }, [filters]);
 
   if (!isOpen) return null;
 

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+const NextResponse = Response;
 import { seedDatabase } from "@/db/seed";
 
 export async function POST() {

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+const NextResponse = Response;
 import { db } from "@/db";
 import { matches, tenants, listings, landlords, messages } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";

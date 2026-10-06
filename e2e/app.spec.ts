@@ -1,0 +1,41 @@
+import {test,expect} from './health';
+test('create listing, approve applicant, chat and retain data after refresh',async({page})=>{
+ await page.goto('');
+ await expect(page.getByTitle('Approve Applicant (Swipe Right)')).toBeVisible();
+ await page.getByRole('button',{name:'+ New Listing'}).click();
+ await page.getByLabel('Listing Title').fill('Test Garden Apartment');
+ await page.getByRole('button',{name:'Add to Swipe Deck'}).click();
+ await expect(page.getByRole('heading',{name:'Post a New Pad Listing'})).toBeHidden();
+ await page.getByRole('button',{name:'Tenant Mode',exact:true}).click();
+ await expect(page.getByText('Test Garden Apartment',{exact:true}).first()).toBeVisible();
+ await page.reload();
+ await page.getByRole('button',{name:'Tenant Mode',exact:true}).click();
+ await expect(page.getByText('Test Garden Apartment',{exact:true}).first()).toBeVisible();
+ await page.getByRole('button',{name:'Landlord Mode',exact:true}).click();
+ await page.getByTitle('Approve Applicant (Swipe Right)').click();
+ await page.getByRole('button',{name:'Open Chat & Schedule Tour'}).click();
+ const input=page.getByPlaceholder("Message applicant (e.g. 'Love the credit score, would you like to tour?')...");
+ await input.fill('Browser persistence check');await input.press('Enter');
+ await expect(page.getByText('Browser persistence check',{exact:true}).first()).toBeVisible();
+ await page.reload();await page.getByRole('button',{name:/Matches & Chat/}).click();
+ await expect(page.getByText('Browser persistence check',{exact:true}).first()).toBeVisible();
+});
+test('tenant creation uses current mode and mobile controls fit',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await page.goto('');
+ await page.getByRole('button',{name:'Tenant Mode',exact:true}).click();
+ await page.getByTitle('Create Tenant Profile').click();
+ await expect(page.getByRole('heading',{name:'Create Tenant Dossier'})).toBeVisible();
+ await page.getByLabel('Full Name').fill('Jamie Test');
+ await page.getByRole('button',{name:'Add to Swipe Deck'}).click();
+ await page.getByRole('button',{name:'Landlord Mode',exact:true}).click();
+ await expect(page.getByText(/Jamie Test/).first()).toBeVisible();
+ await page.screenshot({path:'test-results/mobile.png',fullPage:true});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+test('tour proposals and simulated lease signing persist',async({page})=>{
+ await page.goto('');await page.getByRole('button',{name:/Matches & Chat/}).click();await page.getByRole('button',{name:'Propose Tour'}).click();await page.getByPlaceholder('e.g. Saturday, 11:30 AM').fill('Saturday, 11:30 AM');await page.getByRole('button',{name:'Send Invitation'}).click();
+ await expect(page.getByText(/Official In-Person Tour Proposed: Saturday, 11:30 AM/).first()).toBeVisible();
+ await page.getByRole('button',{name:'Sign Lease ✍️'}).click();await page.getByPlaceholder(/Or type full legal name/).fill('Elena Chen');await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Save Demo Signature'}).click();
+ await expect(page.getByText('DEMO SIGNATURE SAVED! 🎉',{exact:true})).toBeVisible();
+ await page.reload();await page.getByRole('button',{name:/Matches & Chat/}).click();await page.getByRole('button',{name:'Signed 🔑',exact:true}).click();await page.getByText('Elena Chen',{exact:true}).first().click();await page.getByRole('button',{name:'View Signed Lease 🔑'}).click();await expect(page.getByText('DEMO SIGNATURE SAVED! 🎉',{exact:true})).toBeVisible();
+});

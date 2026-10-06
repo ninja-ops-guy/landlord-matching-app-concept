@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+const NextResponse = Response;
 import { db } from "@/db";
 import { matches, messages } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -37,7 +37,7 @@ export async function PATCH(
         matchId,
         senderRole: body.signerRole || "tenant",
         senderName: body.signerName || "Tenant",
-        text: `🍾 OFFICIAL LEASE SIGNED! Both Landlord and Tenant have countersigned electronically. Welcome to your new home! 🔑🏡`,
+        text: `Sample signature saved in this browser. No real lease was signed and no funds were transferred. 🔑`,
         messageType: "lease_signed",
         metadata: {
           signedAt: new Date().toISOString(),

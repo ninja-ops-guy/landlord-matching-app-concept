@@ -1,4 +1,6 @@
 "use client";
+import { localFetch } from "@/lib/local-fetch";
+
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Header } from "@/components/Header";
@@ -59,12 +61,11 @@ export default function Home() {
   // Fetch all initial data
   const loadData = useCallback(async () => {
     try {
-      setIsLoading(true);
       const [tenantsRes, listingsRes, landlordsRes, matchesRes] = await Promise.all([
-        fetch("/api/tenants").then((r) => r.json()),
-        fetch("/api/listings").then((r) => r.json()),
-        fetch("/api/landlords").then((r) => r.json()),
-        fetch("/api/matches").then((r) => r.json()),
+        localFetch("/api/tenants").then((r) => r.json()),
+        localFetch("/api/listings").then((r) => r.json()),
+        localFetch("/api/landlords").then((r) => r.json()),
+        localFetch("/api/matches").then((r) => r.json()),
       ]);
 
       if (Array.isArray(tenantsRes)) setTenants(tenantsRes);
@@ -72,18 +73,18 @@ export default function Home() {
       if (Array.isArray(landlordsRes)) setLandlords(landlordsRes);
       if (Array.isArray(matchesRes)) {
         setMatches(matchesRes);
-        if (matchesRes.length > 0 && !selectedMatchId) {
-          setSelectedMatchId(matchesRes[0].id);
-        }
+        if (matchesRes.length > 0) setSelectedMatchId(current => current ?? matchesRes[0].id);
       }
     } catch (err) {
       console.error("Error loading Landlordr data:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [selectedMatchId]);
+  }, []);
 
   useEffect(() => {
+    // Load asynchronous browser data on mount; state updates follow the awaited request.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
   }, [loadData]);
 
@@ -91,7 +92,7 @@ export default function Home() {
   const handleResetData = async () => {
     setIsResetting(true);
     try {
-      await fetch("/api/reset", { method: "POST" });
+      await localFetch("/api/reset", { method: "POST" });
       await loadData();
       setDeckKey((prev) => prev + 1);
     } catch (err) {
@@ -154,7 +155,7 @@ export default function Home() {
     }
 
     try {
-      const res = await fetch("/api/swipes", {
+      const res = await localFetch("/api/swipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -185,7 +186,7 @@ export default function Home() {
           setIsCelebrationOpen(true);
 
           // Refresh matches
-          const updatedMatchesRes = await fetch("/api/matches");
+          const updatedMatchesRes = await localFetch("/api/matches");
           if (updatedMatchesRes.ok) {
             const updated = await updatedMatchesRes.json();
             setMatches(updated);
@@ -293,7 +294,7 @@ export default function Home() {
                 onSelectMatch={setSelectedMatchId}
                 mode={mode}
                 onRefreshMatches={async () => {
-                  const res = await fetch("/api/matches");
+                  const res = await localFetch("/api/matches");
                   if (res.ok) setMatches(await res.json());
                 }}
               />
@@ -355,7 +356,7 @@ export default function Home() {
       />
 
       {/* Filter Preferences Drawer */}
-      <FilterModal
+      {isFilterOpen && <FilterModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         filters={filters}
@@ -367,10 +368,10 @@ export default function Home() {
           setFilters(DEFAULT_FILTERS);
           setDeckKey((prev) => prev + 1);
         }}
-      />
+      />}
 
       {/* Create Listing / Tenant Modal */}
-      <CreateModal
+      <CreateModal key={mode}
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         mode={mode}

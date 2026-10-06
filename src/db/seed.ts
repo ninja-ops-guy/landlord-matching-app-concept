@@ -1,7 +1,7 @@
 import { db } from "./index";
 import { landlords, listings, tenants, matches, messages, swipes } from "./schema";
 import { initialLandlords, initialListings, initialTenants, initialMatches, initialMessages } from "./seed-data";
-import { count } from "drizzle-orm";
+import { count, sql } from "drizzle-orm";
 
 export async function seedDatabase(force = false) {
   const [existingTenants] = await db.select({ val: count() }).from(tenants);
@@ -44,5 +44,9 @@ export async function seedDatabase(force = false) {
     await db.insert(messages).values(msg).onConflictDoNothing();
   }
 
+  // Explicit sample IDs do not advance PostgreSQL's serial sequences.
+  for (const table of ["landlords", "listings", "tenants", "matches", "messages", "swipes"]) {
+    await db.execute(sql.raw(`SELECT setval(pg_get_serial_sequence('${table}', 'id'), COALESCE((SELECT MAX(id) FROM "${table}"), 0) + 1, false)`));
+  }
   return { success: true, message: "Database seeded successfully" };
 }
