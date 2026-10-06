@@ -37,5 +37,6 @@ test('tour proposals and simulated lease signing persist',async({page})=>{
  await expect(page.getByText(/Official In-Person Tour Proposed: Saturday, 11:30 AM/).first()).toBeVisible();
  await page.getByRole('button',{name:'Sign Lease ✍️'}).click();await page.getByPlaceholder(/Or type full legal name/).fill('Elena Chen');await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Save Demo Signature'}).click();
  await expect(page.getByText('DEMO SIGNATURE SAVED! 🎉',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Return to Matches & Chat'}).click();await page.getByText('Dr. Priya Patel',{exact:true}).first().click();await page.getByRole('button',{name:'Sign Lease ✍️'}).click();await expect(page.getByRole('button',{name:'Save Demo Signature'})).toBeVisible();
  await page.reload();await page.getByRole('button',{name:/Matches & Chat/}).click();await page.getByRole('button',{name:'Signed 🔑',exact:true}).click();await page.getByText('Elena Chen',{exact:true}).first().click();await page.getByRole('button',{name:'View Signed Lease 🔑'}).click();await expect(page.getByText('DEMO SIGNATURE SAVED! 🎉',{exact:true})).toBeVisible();
 });

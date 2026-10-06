@@ -714,6 +714,7 @@ export function MatchesAndChat({
 
       {/* Digital Lease Signing Modal */}
       <LeaseSigningModal
+        key={activeMatch?.id}
         isOpen={isSignModalOpen}
         onClose={() => setIsSignModalOpen(false)}
         match={activeMatch}
